@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Rapid Shot — Captures Get in Minutes</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;800&family=DM+Sans:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --accent: #ff3c00;
+    --accent2: #ffb800;
+    --white: #f5f0e8;
+    --muted: #444;
+    --card: #161616;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom cursor */
+  .cursor {
+    width: 12px; height: 12px;
+    background: var(--accent);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.1s ease;
+    mix-blend-mode: exclusion;
+  }
+  .cursor-follower {
+    width: 36px; height: 36px;
+    border: 1.5px solid var(--accent);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9998;
+    transition: transform 0.25s ease, width 0.2s, height 0.2s;
+    mix-blend-mode: exclusion;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.4rem 3rem;
+    background: rgba(10,10,10,0.75);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid #1f1f1f;
+  }
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    letter-spacing: 0.08em;
+    color: var(--white);
+    text-decoration: none;
+  }
+  .logo span { color: var(--accent); }
+  .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+  .nav-links a {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #aaa;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--white); }
+  .nav-cta {
+    background: var(--accent);
+    color: var(--white) !important;
+    padding: 0.55rem 1.4rem;
+    border-radius: 2px;
+  }
+  .nav-cta:hover { background: #e03500; }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    padding: 8rem 3rem 4rem;
+    position: relative;
+    overflow: hidden;
+    gap: 2rem;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 60% 70% at 80% 50%, rgba(255,60,0,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-tag {
+    display: inline-block;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 0.3rem 0.9rem;
+    margin-bottom: 1.5rem;
+    animation: fadeUp 0.8s ease both;
+  }
+  .hero h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(4.5rem, 9vw, 9rem);
+    line-height: 0.92;
+    letter-spacing: 0.02em;
+    animation: fadeUp 0.8s 0.1s ease both;
+  }
+  .hero h1 .line2 { color: var(--accent); }
+  .hero h1 .line3 { -webkit-text-stroke: 1px var(--white); color: transparent; }
+  .hero-sub {
+    margin-top: 1.8rem;
+    font-size: 1.05rem;
+    font-weight: 300;
+    line-height: 1.7;
+    color: #aaa;
+    max-width: 420px;
+    animation: fadeUp 0.8s 0.2s ease both;
+  }
+  .hero-btns {
+    margin-top: 2.5rem;
+    display: flex; gap: 1rem; align-items: center;
+    animation: fadeUp 0.8s 0.3s ease both;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: var(--white);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 1rem 2.2rem;
+    text-decoration: none;
+    border-radius: 2px;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .btn-primary:hover { background: #e03500; transform: translateY(-2px); }
+  .btn-ghost {
+    color: var(--white);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    display: flex; align-items: center; gap: 0.5rem;
+    border-bottom: 1px solid #555;
+    padding-bottom: 2px;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .btn-ghost:hover { border-color: var(--white); }
+  .hero-visual {
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+    animation: fadeIn 1s 0.3s ease both;
+  }
+  .hero-frame {
+    width: 100%; max-width: 520px;
+    aspect-ratio: 4/5;
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+    background: #181818;
+    border: 1px solid #222;
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 4px;
+    height: 100%;
+  }
+  .hg-item {
+    background: var(--card);
+    position: relative;
+    overflow: hidden;
+  }
+  .hg-item::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(255,60,0,0.08) 0%, transparent 60%);
+  }
+  .hg-item:nth-child(1) { grid-row: span 2; background: #1a1a1a; }
+  .hg-item svg { width: 100%; height: 100%; opacity: 0.15; }
+  .badge-live {
+    position: absolute; bottom: 1.5rem; left: 1.5rem;
+    background: var(--accent);
+    color: var(--white);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.35rem 0.8rem;
+    border-radius: 2px;
+    display: flex; align-items: center; gap: 0.4rem;
+  }
+  .badge-live::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--white);
+    border-radius: 50%;
+    animation: blink 1s infinite;
+  }
+  .hero-stat {
+    position: absolute;
+    background: var(--card);
+    border: 1px solid #222;
+    border-radius: 4px;
+    padding: 0.8rem 1.2rem;
+    font-family: 'Syne', sans-serif;
+  }
+  .hero-stat.s1 { bottom: -1.5rem; left: -2rem; }
+  .hero-stat.s2 { top: 2rem; right: -2rem; }
+  .hero-stat .num {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .hero-stat .label {
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #666;
+    margin-top: 0.2rem;
+  }
+
+  /* TICKER */
+  .ticker {
+    background: var(--accent);
+    padding: 0.8rem 0;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .ticker-inner {
+    display: inline-flex;
+    animation: ticker 18s linear infinite;
+  }
+  .ticker-item {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.08em;
+    padding: 0 2rem;
+    color: var(--bg);
+  }
+  .ticker-dot { color: rgba(0,0,0,0.4); }
+
+  /* SECTION BASE */
+  section { padding: 6rem 3rem; }
+  .section-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1rem;
+  }
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.8rem, 5vw, 5rem);
+    letter-spacing: 0.03em;
+    line-height: 1;
+  }
+  .section-title em {
+    font-style: normal;
+    -webkit-text-stroke: 1px var(--white);
+    color: transparent;
+  }
+
+  /* SERVICES */
+  .services { background: var(--surface); }
+  .services-grid {
+    margin-top: 3.5rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5px;
+    background: #222;
+  }
+  .service-card {
+    background: var(--card);
+    padding: 2.5rem 2rem;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.25s;
+  }
+  .service-card:hover { background: #1c1c1c; }
+  .service-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+  }
+  .service-card:hover::before { transform: scaleX(1); }
+  .service-icon {
+    font-size: 2.2rem;
+    margin-bottom: 1.5rem;
+  }
+  .service-card h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 800;
+    margin-bottom: 0.8rem;
+    letter-spacing: 0.02em;
+  }
+  .service-card p {
+    font-size: 0.88rem;
+    color: #777;
+    line-height: 1.7;
+  }
+  .service-num {
+    position: absolute;
+    top: 1.5rem; right: 1.5rem;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3rem;
+    color: #1f1f1f;
+    line-height: 1;
+  }
+
+  /* GALLERY */
+  .gallery-grid {
+    margin-top: 3.5rem;
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-template-rows: repeat(3, 180px);
+    gap: 8px;
+  }
+  .g-item {
+    background: var(--card);
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+  }
+  .g-item::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: var(--accent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .g-item:hover::after { opacity: 0.15; }
+  .g-item:nth-child(1) { grid-column: span 5; grid-row: span 2; }
+  .g-item:nth-child(2) { grid-column: span 4; }
+  .g-item:nth-child(3) { grid-column: span 3; }
+  .g-item:nth-child(4) { grid-column: span 4; grid-row: span 2; }
+  .g-item:nth-child(5) { grid-column: span 3; }
+  .g-item:nth-child(6) { grid-column: span 5; }
+  .g-item:nth-child(7) { grid-column: span 4; }
+  .g-item:nth-child(8) { grid-column: span 3; }
+  .g-placeholder {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2rem; color: #2a2a2a;
+  }
+  .g-item .g-label {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.85));
+    padding: 1.5rem 1rem 0.8rem;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--white);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .g-item:hover .g-label { opacity: 1; }
+
+  /* Decorative grid lines in gallery items */
+  .g-vis {
+    width: 100%; height: 100%;
+    background: 
+      repeating-linear-gradient(0deg, transparent, transparent 39px, #1e1e1e 39px, #1e1e1e 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, #1e1e1e 39px, #1e1e1e 40px);
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .g-vis::after {
+    content: attr(data-type);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 0.1em;
+    color: #2e2e2e;
+    position: absolute;
+  }
+
+  /* PACKAGES */
+  .packages { background: var(--surface); }
+  .pkg-grid {
+    margin-top: 3.5rem;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5px;
+    background: #222;
+  }
+  .pkg-card {
+    background: var(--card);
+    padding: 2.8rem 2.2rem;
+    position: relative;
+    transition: background 0.2s;
+  }
+  .pkg-card.featured {
+    background: var(--accent);
+    color: var(--bg);
+  }
+  .pkg-badge {
+    position: absolute; top: -12px; left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent2);
+    color: var(--bg);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 0.3rem 1rem;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+  .pkg-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.3rem;
+  }
+  .pkg-desc {
+    font-size: 0.82rem;
+    color: #888;
+    margin-bottom: 1.8rem;
+    line-height: 1.5;
+  }
+  .pkg-card.featured .pkg-desc { color: rgba(0,0,0,0.6); }
+  .pkg-price {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3.5rem;
+    line-height: 1;
+    letter-spacing: 0.02em;
+    margin-bottom: 0.2rem;
+  }
+  .pkg-price span {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 400;
+    vertical-align: super;
+  }
+  .pkg-period {
+    font-size: 0.75rem;
+    color: #888;
+    margin-bottom: 2rem;
+    font-family: 'Syne', sans-serif;
+  }
+  .pkg-card.featured .pkg-period { color: rgba(0,0,0,0.5); }
+  .pkg-features {
+    list-style: none;
+    margin-bottom: 2rem;
+  }
+  .pkg-features li {
+    font-size: 0.85rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid #1f1f1f;
+    display: flex; align-items: center; gap: 0.7rem;
+    color: #bbb;
+  }
+  .pkg-card.featured .pkg-features li {
+    border-color: rgba(0,0,0,0.15);
+    color: rgba(0,0,0,0.75);
+  }
+  .pkg-features li::before {
+    content: '✓';
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 0.8rem;
+  }
+  .pkg-card.featured .pkg-features li::before { color: var(--bg); }
+  .btn-pkg {
+    display: block;
+    text-align: center;
+    text-decoration: none;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 1rem;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+  .btn-pkg-outline {
+    border: 1.5px solid #333;
+    color: var(--white);
+  }
+  .btn-pkg-outline:hover { border-color: var(--white); }
+  .btn-pkg-dark {
+    background: var(--bg);
+    color: var(--white);
+  }
+  .btn-pkg-dark:hover { background: #111; }
+
+  /* ABOUT */
+  .about {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+    align-items: center;
+  }
+  .about-visual {
+    position: relative;
+  }
+  .about-frame {
+    aspect-ratio: 3/4;
+    background: var(--card);
+    border-radius: 2px;
+    border: 1px solid #222;
+    overflow: hidden;
+    position: relative;
+  }
+  .about-frame .big-text {
+    position: absolute;
+    bottom: -0.1em; left: -0.05em;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 12rem;
+    color: #181818;
+    line-height: 1;
+    user-select: none;
+  }
+  .about-frame .center-icon {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 5rem;
+  }
+  .about-accent-box {
+    position: absolute;
+    bottom: -1.5rem; right: -1.5rem;
+    background: var(--accent);
+    padding: 1.5rem 2rem;
+    border-radius: 2px;
+  }
+  .about-accent-box .big-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3rem;
+    line-height: 1;
+    color: var(--white);
+  }
+  .about-accent-box .small-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.7);
+  }
+  .about-content { }
+  .about-content p {
+    font-size: 1rem;
+    color: #888;
+    line-height: 1.8;
+    margin-top: 1.5rem;
+  }
+  .about-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-top: 2.5rem;
+  }
+  .astat {
+    border-top: 1px solid #222;
+    padding-top: 1.2rem;
+  }
+  .astat .n {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.5rem;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .astat .l {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #555;
+    margin-top: 0.2rem;
+  }
+
+  /* BOOKING */
+  .booking { background: var(--surface); }
+  .booking-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+    margin-top: 3.5rem;
+  }
+  .booking-info p {
+    font-size: 1rem;
+    color: #777;
+    line-height: 1.8;
+    margin-top: 1.2rem;
+  }
+  .booking-steps {
+    margin-top: 2.5rem;
+    list-style: none;
+    display: flex; flex-direction: column; gap: 1.2rem;
+  }
+  .booking-steps li {
+    display: flex; align-items: flex-start; gap: 1rem;
+  }
+  .step-num {
+    width: 32px; height: 32px;
+    background: var(--accent);
+    border-radius: 2px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    color: var(--white);
+  }
+  .step-text { font-size: 0.88rem; color: #888; line-height: 1.6; }
+  .step-text strong { color: var(--white); font-family: 'Syne', sans-serif; font-size: 0.88rem; display: block; margin-bottom: 0.15rem; }
+
+  /* FORM */
+  .booking-form { display: flex; flex-direction: column; gap: 1rem; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+  .form-group label {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #555;
+  }
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    background: var(--card);
+    border: 1.5px solid #222;
+    border-radius: 2px;
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    padding: 0.85rem 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus { border-color: var(--accent); }
+  .form-group select option { background: var(--card); }
+  .form-group textarea { resize: vertical; min-height: 110px; }
+  .btn-submit {
+    background: var(--accent);
+    color: var(--white);
+    border: none;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 1.1rem 2rem;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    margin-top: 0.5rem;
+  }
+  .btn-submit:hover { background: #e03500; transform: translateY(-2px); }
+
+  /* CONTACT */
+  .contact-strip {
+    background: var(--accent);
+    padding: 5rem 3rem;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 2rem;
+  }
+  .contact-strip h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.5rem, 5vw, 5rem);
+    color: var(--bg);
+    line-height: 1;
+  }
+  .contact-strip h2 em {
+    font-style: normal;
+    -webkit-text-stroke: 1.5px var(--bg);
+    color: transparent;
+  }
+  .contact-links {
+    display: flex; flex-direction: column; gap: 0.8rem;
+    align-items: flex-end;
+  }
+  .contact-link {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--bg);
+    text-decoration: none;
+    display: flex; align-items: center; gap: 0.5rem;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+  }
+  .contact-link:hover { opacity: 1; }
+
+  /* FOOTER */
+  footer {
+    background: var(--bg);
+    border-top: 1px solid #1a1a1a;
+    padding: 2.5rem 3rem;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  footer .logo { font-size: 1.4rem; }
+  footer p {
+    font-size: 0.78rem;
+    color: #444;
+    font-family: 'Syne', sans-serif;
+    letter-spacing: 0.08em;
+  }
+  .footer-links { display: flex; gap: 1.5rem; }
+  .footer-links a {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #444;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .footer-links a:hover { color: var(--white); }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; } to { opacity: 1; }
+  }
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; } 50% { opacity: 0.3; }
+  }
+
+  /* SCROLL REVEAL */
+  .reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    nav { padding: 1.2rem 1.5rem; }
+    .nav-links { display: none; }
+    .hero { grid-template-columns: 1fr; padding: 7rem 1.5rem 3rem; }
+    .hero-visual { display: none; }
+    section { padding: 4rem 1.5rem; }
+    .pkg-grid { grid-template-columns: 1fr; }
+    .about { grid-template-columns: 1fr; }
+    .booking-inner { grid-template-columns: 1fr; gap: 3rem; }
+    .gallery-grid { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
+    .g-item { grid-column: span 1 !important; grid-row: span 1 !important; height: 180px; }
+    .contact-strip { flex-direction: column; align-items: flex-start; }
+    .contact-links { align-items: flex-start; }
+    .form-row { grid-template-columns: 1fr; }
+    footer { flex-direction: column; text-align: center; }
+    .footer-links { justify-content: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-follower" id="follower"></div>
+
+<!-- NAV -->
+<nav>
+  <a class="logo" href="#"><span>R</span>APID SHOT</a>
+  <ul class="nav-links">
+    <li><a href="#services">Services</a></li>
+    <li><a href="#gallery">Gallery</a></li>
+    <li><a href="#packages">Packages</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#booking" class="nav-cta">Book a Slot</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-left">
+    <div class="hero-tag">⚡ Captures Get in Minutes</div>
+    <h1>
+      RAPID<br>
+      <span class="line2">SHOT</span><br>
+      <span class="line3">STUDIO</span>
+    </h1>
+    <p class="hero-sub">Instant reels. Cinematic videos. Stunning photos. We shoot fast, edit fast — and deliver results that last.</p>
+    <div class="hero-btns">
+      <a href="#booking" class="btn-primary">Book Your Slot →</a>
+      <a href="#gallery" class="btn-ghost">See Our Work ↓</a>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="hero-frame">
+      <div class="hero-grid">
+        <div class="hg-item">
+          <div class="g-vis" data-type="REEL"></div>
+          <div class="badge-live">Live Editing</div>
+        </div>
+        <div class="hg-item"><div class="g-vis" data-type="PHOTO"></div></div>
+        <div class="hg-item"><div class="g-vis" data-type="VIDEO"></div></div>
+      </div>
+    </div>
+    <div class="hero-stat s1">
+      <div class="num">2min</div>
+      <div class="label">Avg Reel Delivery</div>
+    </div>
+    <div class="hero-stat s2">
+      <div class="num">500+</div>
+      <div class="label">Shoots Done</div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-inner" id="ticker">
+    <span class="ticker-item">INSTANT REELS <span class="ticker-dot">✦</span></span>
+    <span class="ticker-item">EDITED VIDEOS <span class="ticker-dot">✦</span></span>
+    <span class="ticker-item">PRO PHOTOGRAPHY <span class="ticker-dot">✦</span></span>
+    <span class="ticker-item">CORPORATE SHOOTS <span class="ticker-dot">✦</span></span>
+    <span class="ticker-item">PORTRAITS <span class="ticker-dot">✦</span></span>
+    <span class="ticker-item">PRODUCT SHOOTS <span class="ticker-dot">✦</span></span>
+    <span class="ticker-item">RAPID DELIVERY <span class="ticker-dot">✦</span></span>
+    <span class="ticker-item">BOOK A SLOT NOW <span class="ticker-dot">✦</span></span>
+    <span class="ticker-item">INSTANT REELS <span class="ticker-dot">✦</span></span>
+    <span class="ticker-item">EDITED VIDEOS <span class="ticker-dot">✦</span></span>
+    <span class="ticker-item">PRO PHOTOGRAPHY <span class="ticker-dot">✦</span></span>
+    <span class="ticker-item">CORPORATE SHOOTS <span class="ticker-dot">✦</span></span>
+    <span class="ticker-item">PORTRAITS <span class="ticker-dot">✦</span></span>
+    <span class="ticker-item">PRODUCT SHOOTS <span class="ticker-dot">✦</span></span>
+    <span class="ticker-item">RAPID DELIVERY <span class="ticker-dot">✦</span></span>
+    <span class="ticker-item">BOOK A SLOT NOW <span class="ticker-dot">✦</span></span>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<section class="services" id="services">
+  <div class="section-label">What We Do</div>
+  <h2 class="section-title">Our <em>Services</em></h2>
+  <div class="services-grid reveal">
+    <div class="service-card">
+      <div class="service-num">01</div>
+      <div class="service-icon">🎬</div>
+      <h3>Instant Reels</h3>
+      <p>Scroll-stopping short-form reels shot and delivered in minutes. Perfect for social media and brand launches.</p>
+    </div>
+    <div class="service-card">
+      <div class="service-num">02</div>
+      <div class="service-icon">🎞️</div>
+      <h3>Edited Videos</h3>
+      <p>Cinematic long-form and short-form videos with professional color grading, transitions, and music sync.</p>
+    </div>
+    <div class="service-card">
+      <div class="service-num">03</div>
+      <div class="service-icon">📸</div>
+      <h3>Photography</h3>
+      <p>High-resolution portraits, product shots, and event photography — retouched and ready fast.</p>
+    </div>
+    <div class="service-card">
+      <div class="service-num">04</div>
+      <div class="service-icon">🏢</div>
+      <h3>Corporate Shoots</h3>
+      <p>Brand headshots, team photos, office walkthroughs, and campaign content for businesses.</p>
+    </div>
+    <div class="service-card">
+      <div class="service-num">05</div>
+      <div class="service-icon">🎤</div>
+      <h3>Event Coverage</h3>
+      <p>Full-event documentation — from conferences and product launches to personal milestones.</p>
+    </div>
+    <div class="service-card">
+      <div class="service-num">06</div>
+      <div class="service-icon">📦</div>
+      <h3>Product Campaigns</h3>
+      <p>360° product visuals crafted to convert — images, demo clips, and lifestyle shots in one session.</p>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section id="gallery" style="padding-bottom: 6rem;">
+  <div class="section-label">Portfolio</div>
+  <h2 class="section-title">Our <em>Best</em> Work</h2>
+  <div class="gallery-grid reveal">
+    <div class="g-item">
+      <div class="g-vis" data-type="PORTRAIT"></div>
+      <div class="g-label">Portrait Session</div>
+    </div>
+    <div class="g-item">
+      <div class="g-vis" data-type="REEL"></div>
+      <div class="g-label">Brand Reel</div>
+    </div>
+    <div class="g-item">
+      <div class="g-vis" data-type="PRODUCT"></div>
+      <div class="g-label">Product Shot</div>
+    </div>
+    <div class="g-item">
+      <div class="g-vis" data-type="EVENT"></div>
+      <div class="g-label">Event Coverage</div>
+    </div>
+    <div class="g-item">
+      <div class="g-vis" data-type="CORP"></div>
+      <div class="g-label">Corporate</div>
+    </div>
+    <div class="g-item">
+      <div class="g-vis" data-type="VIDEO"></div>
+      <div class="g-label">Edited Video</div>
+    </div>
+    <div class="g-item">
+      <div class="g-vis" data-type="REEL"></div>
+      <div class="g-label">Social Reel</div>
+    </div>
+    <div class="g-item">
+      <div class="g-vis" data-type="PHOTO"></div>
+      <div class="g-label">Lifestyle Shoot</div>
+    </div>
+  </div>
+</section>
+
+<!-- PACKAGES -->
+<section class="packages" id="packages">
+  <div class="section-label">Pricing</div>
+  <h2 class="section-title">Choose Your <em>Package</em></h2>
+  <div class="pkg-grid reveal">
+    <!-- STARTER -->
+    <div class="pkg-card">
+      <div class="pkg-name">Starter</div>
+      <p class="pkg-desc">Perfect for individuals & quick social content</p>
+      <div class="pkg-price"><span>₹</span>1,999</div>
+      <div class="pkg-period">per session</div>
+      <ul class="pkg-features">
+        <li>1 Hour Shoot</li>
+        <li>10 Edited Photos</li>
+        <li>1 Instant Reel (60s)</li>
+        <li>Same-Day Delivery</li>
+        <li>1 Location</li>
+      </ul>
+      <a href="#booking" class="btn-pkg btn-pkg-outline">Book Starter</a>
+    </div>
+    <!-- PRO (featured) -->
+    <div class="pkg-card featured">
+      <div class="pkg-badge">Most Popular</div>
+      <div class="pkg-name">Pro</div>
+      <p class="pkg-desc">Best for brands, creators & product campaigns</p>
+      <div class="pkg-price"><span>₹</span>4,999</div>
+      <div class="pkg-period">per session</div>
+      <ul class="pkg-features">
+        <li>3 Hours Shoot</li>
+        <li>30 Edited Photos</li>
+        <li>3 Reels (up to 90s each)</li>
+        <li>1 Cinematic Video (3–5 min)</li>
+        <li>2 Locations</li>
+        <li>Priority Editing</li>
+      </ul>
+      <a href="#booking" class="btn-pkg btn-pkg-dark">Book Pro</a>
+    </div>
+    <!-- ELITE -->
+    <div class="pkg-card">
+      <div class="pkg-name">Elite</div>
+      <p class="pkg-desc">Full-scale production for corporate & events</p>
+      <div class="pkg-price"><span>₹</span>9,999</div>
+      <div class="pkg-period">per session</div>
+      <ul class="pkg-features">
+        <li>Full Day Shoot</li>
+        <li>100+ Edited Photos</li>
+        <li>Unlimited Reels</li>
+        <li>2 Cinematic Videos</li>
+        <li>Multiple Locations</li>
+        <li>Drone Shots Included</li>
+        <li>Dedicated Editor On-Site</li>
+      </ul>
+      <a href="#booking" class="btn-pkg btn-pkg-outline">Book Elite</a>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about" style="padding: 6rem 3rem;">
+  <div class="about">
+    <div class="about-visual reveal">
+      <div class="about-frame">
+        <div class="big-text">RS</div>
+        <div class="center-icon">📷</div>
+      </div>
+      <div class="about-accent-box">
+        <div class="big-num">3+</div>
+        <div class="small-label">Years of Speed</div>
+      </div>
+    </div>
+    <div class="about-content reveal">
+      <div class="section-label">Our Story</div>
+      <h2 class="section-title">Why <em>Rapid Shot?</em></h2>
+      <p>We believe great content shouldn't wait. At Rapid Shot, we've built a studio around speed without compromise — where your visuals go from lens to screen in minutes, not days.</p>
+      <p>Our team of creatives, editors, and cinematographers work in real-time to deliver content that feels alive, urgent, and distinctly yours.</p>
+      <div class="about-stats">
+        <div class="astat"><div class="n">500+</div><div class="l">Happy Clients</div></div>
+        <div class="astat"><div class="n">2min</div><div class="l">Avg Reel Turnaround</div></div>
+        <div class="astat"><div class="n">10K+</div><div class="l">Shoots Completed</div></div>
+        <div class="astat"><div class="n">100%</div><div class="l">On-Time Delivery</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BOOKING -->
+<section class="booking" id="booking">
+  <div class="section-label">Reservations</div>
+  <h2 class="section-title">Book Your <em>Slot</em></h2>
+  <div class="booking-inner">
+    <div class="booking-info reveal">
+      <p>Choose your package, pick a date, and let us handle the rest. Our team confirms your slot within 2 hours and starts prepping for your shoot.</p>
+      <ul class="booking-steps">
+        <li>
+          <div class="step-num">1</div>
+          <div class="step-text"><strong>Fill the Form</strong>Share your shoot details, date, and package preference.</div>
+        </li>
+        <li>
+          <div class="step-num">2</div>
+          <div class="step-text"><strong>Get Confirmed</strong>We'll reach out within 2 hours to confirm your slot.</div>
+        </li>
+        <li>
+          <div class="step-num">3</div>
+          <div class="step-text"><strong>Show Up & Shoot</strong>Walk in, look great, and we do the rest — fast.</div>
+        </li>
+        <li>
+          <div class="step-num">4</div>
+          <div class="step-text"><strong>Receive Your Content</strong>Your edited photos, reels, and videos delivered same day.</div>
+        </li>
+      </ul>
+    </div>
+    <form class="booking-form reveal" onsubmit="handleSubmit(event)">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" placeholder="Your name" required />
+        </div>
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="tel" placeholder="+91 00000 00000" required />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" placeholder="you@email.com" required />
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Package</label>
+          <select required>
+            <option value="" disabled selected>Select package</option>
+            <option>Starter — ₹1,999</option>
+            <option>Pro — ₹4,999</option>
+            <option>Elite — ₹9,999</option>
+            <option>Custom / Corporate</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Shoot Type</label>
+          <select>
+            <option value="" disabled selected>Select type</option>
+            <option>Portrait / Personal</option>
+            <option>Reels / Social Media</option>
+            <option>Product Shoot</option>
+            <option>Corporate / Event</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Preferred Date</label>
+        <input type="date" required />
+      </div>
+      <div class="form-group">
+        <label>Additional Notes</label>
+        <textarea placeholder="Tell us about your vision, location preferences, or anything special…"></textarea>
+      </div>
+      <button type="submit" class="btn-submit">⚡ Confirm My Booking</button>
+    </form>
+  </div>
+</section>
+
+<!-- CONTACT STRIP -->
+<div class="contact-strip">
+  <h2>LET'S CREATE<br><em>SOMETHING</em><br>RAPID.</h2>
+  <div class="contact-links">
+    <a class="contact-link" href="mailto:hello@rapidshot.in">📧 hello@rapidshot.in</a>
+    <a class="contact-link" href="tel:+919999999999">📞 +91 99999 99999</a>
+    <a class="contact-link" href="#">📍 Mumbai, India</a>
+    <a class="contact-link" href="#">📸 @rapidshot.captures</a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <a class="logo" href="#"><span>R</span>APID SHOT</a>
+  <p>© 2025 Rapid Shot. Captures Get in Minutes.</p>
+  <div class="footer-links">
+    <a href="#services">Services</a>
+    <a href="#packages">Packages</a>
+    <a href="#booking">Book</a>
+    <a href="#about">About</a>
+  </div>
+</footer>
+
+<!-- SUCCESS TOAST -->
+<div id="toast" style="position:fixed;bottom:2rem;right:2rem;background:var(--accent);color:white;font-family:'Syne',sans-serif;font-size:0.82rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:1rem 2rem;border-radius:2px;z-index:9999;transform:translateY(100px);opacity:0;transition:all 0.4s ease;">
+  ⚡ Booking Request Sent!
+</div>
+
+<script>
+  // Custom cursor
+  const cursor = document.getElementById('cursor');
+  const follower = document.getElementById('follower');
+  let mx = 0, my = 0, fx = 0, fy = 0;
+
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.transform = `translate(${mx - 6}px, ${my - 6}px)`;
+  });
+
+  function animateFollower() {
+    fx += (mx - fx - 18) * 0.12;
+    fy += (my - fy - 18) * 0.12;
+    follower.style.transform = `translate(${fx}px, ${fy}px)`;
+    requestAnimationFrame(animateFollower);
+  }
+  animateFollower();
+
+  document.querySelectorAll('a, button, input, select, textarea').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursor.style.transform += ' scale(1.8)';
+      follower.style.width = '52px';
+      follower.style.height = '52px';
+    });
+    el.addEventListener('mouseleave', () => {
+      follower.style.width = '36px';
+      follower.style.height = '36px';
+    });
+  });
+
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(el => observer.observe(el));
+
+  // Form submit
+  function handleSubmit(e) {
+    e.preventDefault();
+    const toast = document.getElementById('toast');
+    toast.style.transform = 'translateY(0)';
+    toast.style.opacity = '1';
+    setTimeout(() => {
+      toast.style.transform = 'translateY(100px)';
+      toast.style.opacity = '0';
+    }, 3500);
+    e.target.reset();
+  }
+</script>
+</body>
+</html>
